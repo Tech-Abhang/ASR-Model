@@ -1,5 +1,6 @@
 # Exclude LibriSpeech dataset folder
 LibriSpeech/
+LibriSpeech_test/
 
 # Exclude environment variables file
 .env
