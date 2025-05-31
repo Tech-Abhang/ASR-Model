@@ -1,0 +1,4 @@
+pip install sagemaker
+pip install --upgrade huggingface_hub
+pip install requests
+pip install dotenv
