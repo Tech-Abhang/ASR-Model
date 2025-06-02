@@ -107,7 +107,7 @@ def test_model(model_path, test_dataset_path, output_dir, max_samples=100):
     processing_times = []
     for i, sample in enumerate(tqdm(samples, desc=f"Testing {model_name}")):
         audio_path = sample["audio_path"]
-        reference = sample["transcript"]
+        reference = sample["text"]
         
         # Transcribe the audio
         start_time = time.time()
