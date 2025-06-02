@@ -84,6 +84,21 @@ def test_fine_tuning_client():
         print(f"✗ Fine-tuning client test failed: {e}")
         return False
 
+def test_dataset():
+    """Test basic dataset availability."""
+    print("\nTesting dataset availability...")
+    
+    from verify_dataset import verify_dataset
+    dataset_path = "/Users/abhangsudhirpawar/Documents/Akai/LibriSpeech/train-clean-100"
+    
+    if verify_dataset(dataset_path):
+        print("✓ Dataset validation passed")
+        return True
+    else:
+        print("✗ Dataset validation failed")
+        print("Run 'python verify_dataset.py' for detailed diagnostics")
+        return False
+
 def main():
     """Run all tests."""
     print("Running local fine-tuning setup validation...\n")
@@ -91,7 +106,8 @@ def main():
     tests = [
         test_imports,
         test_model_loading,
-        test_fine_tuning_client
+        test_fine_tuning_client,
+        test_dataset
     ]
     
     passed = 0

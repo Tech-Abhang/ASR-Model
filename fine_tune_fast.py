@@ -31,7 +31,7 @@ def main():
                         help='Minimum audio duration in seconds (increased for efficiency)')
     parser.add_argument('--max_duration', type=float, default=10.0,
                         help='Maximum audio duration in seconds (reduced for speed)')
-    parser.add_argument('--output_dir', type=str, default='./output/fast_model',
+    parser.add_argument('--output_dir', type=str, default='./whisper-finetuned',
                         help='Directory to save the fine-tuned model')
     parser.add_argument('--dry_run', action='store_true',
                         help='Process the dataset but do not start training')
