@@ -1,159 +1,254 @@
-# Akai: Audio Processing with LibriSpeech
+# Akai: Speech Recognition Fine-Tuning Platform
 
-A tool for processing audio data from the LibriSpeech dataset using Hugging Face's speech recognition capabilities, with fine-tuning capabilities.
+A comprehensive toolkit for processing audio data, fine-tuning speech recognition models, and evaluating their performance using the LibriSpeech dataset and Hugging Face's speech models.
 
-## Overview
+## Project Overview
 
-This project provides utilities to work with the LibriSpeech dataset, perform speech recognition using Hugging Face's speech models, and fine-tune pre-trained speech recognition models through the Hugging Face API using the local LibriSpeech train-clean-100 dataset. It's optimized for Mac M3 chips without requiring CUDA.
+This project provides end-to-end utilities for:
+1. Processing and validating LibriSpeech dataset
+2. Fine-tuning Whisper speech recognition models 
+3. Evaluating model performance using WER (Word Error Rate)
+4. Visualizing results and generating reports
 
-## Files
+It's optimized for Mac M-series chips without requiring CUDA acceleration.
 
-- `complete_workflow.py`: Main script to run the entire fine-tuning and evaluation process
-- `huggingface_client.py`: Client for interacting with Hugging Face's speech recognition models
-- `dataset_processor.py`: Processes the LibriSpeech dataset for fine-tuning
-- `fine_tuning_client.py`: Client for interacting with the Hugging Face API for fine-tuning
-- `fine_tune.py`: Main script for fine-tuning
-- `check_job_status.py`: Utility to check fine-tuning job status
-- `verify_dataset.py`: Validates the LibriSpeech dataset structure 
-- `simple_evaluate.py`: Compares model performance using WER metrics
-- `transcribe.py`: Command-line tool to transcribe individual audio files
-- `inference.py`: Script for batch inference on multiple audio files
-- `visualize_dataset.py`: Creates visualizations of dataset statistics
-- `create_base_model.py`: Creates base model configuration files
-- `test.flac`: Sample audio file for testing
+## Project Structure
 
-## Requirements
+### Core Components
 
-Dependencies are listed in `requirements.txt`. Install them using:
+```
+├── dataset_processor.py      # LibriSpeech dataset processing utilities
+├── fine_tune.py              # Main fine-tuning script
+├── fine_tuning_client.py     # Hugging Face API client for fine-tuning
+├── simple_evaluate.py        # Evaluation script comparing model performance
+├── inference.py              # Batch inference for testing models
+
+
+### Directories
+
+```
+├── LibriSpeech/              # Training dataset (train-clean-100)
+├── LibriSpeech_test/         # Test dataset (test-clean)
+├── output/                   # Output directory for results and reports
+├── whisper-small/            # Base whisper-small model
+├── whisper-finetuned/        # Fine-tuned model
+```
+
+## Setup Instructions
+
+### 1. Prerequisites
+
+- Python 3.8+
+- pip/pip3
+- Hugging Face account (for API access)
+- LibriSpeech dataset
+
+### 2. Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://your-repository-url/Akai.git
+cd Akai
+```
+
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Fine-tuning a Speech Recognition Model
-
-This project includes functionality to fine-tune a pre-trained speech recognition model using your local LibriSpeech train-clean-100 dataset through the Hugging Face API. The implementation is optimized for Mac M3 with no CUDA requirements.
-
-### Complete Workflow
-
-To run the entire pipeline from fine-tuning to evaluation, use the complete workflow script:
+3. Set up Hugging Face API token:
 
 ```bash
-python complete_workflow.py --dataset_path /path/to/LibriSpeech/train-clean-100 \
-                           --test_dataset /path/to/LibriSpeech_test/test-clean \
-                           --max_samples 100 \
-                           --delete_existing
+export HUGGINGFACE_TOKEN=your_token_here
 ```
 
-This script performs the following steps:
-1. **Delete existing models** (optional)
-2. **Fine-tune** a new model using the specified dataset
-3. **Run evaluation** on the test dataset
-4. **Compare models** to measure improvements
-5. **Generate reports** with visualizations
+### 3. Prepare Dataset
 
-### Individual Scripts
-
-For more control over the process, you can also use the individual scripts:
-
-#### Verifying Your Dataset
+1. Download LibriSpeech datasets:
 
 ```bash
-python verify_dataset.py --dataset_path /path/to/LibriSpeech/train-clean-100
+# Download train-clean-100 subset
+mkdir -p LibriSpeech
+wget https://www.openslr.org/resources/12/train-clean-100.tar.gz
+tar -xzf train-clean-100.tar.gz -C LibriSpeech
+
+# Download test-clean subset
+mkdir -p LibriSpeech_test
+wget https://www.openslr.org/resources/12/test-clean.tar.gz
+tar -xzf test-clean.tar.gz -C LibriSpeech_test
 ```
 
-#### Running a Dry Run
-
-Process the dataset without sending it to the API:
+2. Verify the dataset structure:
 
 ```bash
-python fine_tune.py --dry_run --max_samples 200
+python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100
+python verify_dataset.py --dataset_path ./LibriSpeech_test/test-clean
 ```
 
-#### Visualizing Dataset Statistics
+### 4. Download Base Model
 
-After a dry run, visualize the dataset statistics:
+Download the pre-trained base model:
 
 ```bash
-python visualize_dataset.py
+python downloadModel.py --model_name "openai/whisper-small" --output_dir "./whisper-small"
 ```
 
-#### Starting Fine-tuning
+## Complete Workflow Guide
 
-To fine-tune a model using the default parameters:
+#### Verify Dataset Structure
 
 ```bash
-python fine_tune.py
+python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100
 ```
 
-You can customize the fine-tuning with various options:
+#### Analyze Dataset Statistics
+
+```bash
+python visualize_dataset.py --dataset_path ./LibriSpeech/train-clean-100 --output_dir ./output
+```
+
+### Fine-Tuning
+
+#### Dry Run (Test without API submission)
 
 ```bash
 python fine_tune.py \
-  --dataset_path /path/to/LibriSpeech/train-clean-100 \
+  --dry_run \
+  --dataset_path ./LibriSpeech/train-clean-100 \
   --max_samples 200 \
+  --output_dir ./output
+```
+
+#### Start Fine-Tuning Job
+
+```bash
+python fine_tune.py \
+  --dataset_path ./LibriSpeech/train-clean-100 \
+  --max_samples 500 \
+  --model_name openai/whisper-small \
+  --epochs 1 \
+  --batch_size 16 \
+  --learning_rate 5e-5 \
+  --output_dir ./output
+```
+
+### Model Evaluation
+
+#### Compare Base Model and Fine-Tuned Model
+
+```bash
+python simple_evaluate.py \
+  --base_model ./whisper-small \
+  --finetuned_model ./whisper-finetuned \
+  --test_dataset ./LibriSpeech_test/test-clean \
+  --max_samples 50 \
+  --output_dir ./output
+```
+
+### Inference and Transcription
+
+#### Batch Inference
+
+```bash
+python inference.py \
+  --model ./whisper-finetuned \
+  --test_dataset ./LibriSpeech_test/test-clean \
+  --max_samples 20 \
+  --output_dir ./output
+```
+
+#### Single File Transcription
+
+
+## Advanced Usage
+
+### Understanding Word Error Rate (WER) Calculation
+
+The project uses the Levenshtein distance algorithm to calculate WER between reference and hypothesis transcriptions:
+
+1. Calculate Edit Distance: Count minimum insertions, deletions, and substitutions to transform hypothesis to reference
+2. Normalize: Divide edit distance by the number of words in the reference
+
+WER = (Insertions + Deletions + Substitutions) / Number of words in reference
+
+Lower WER indicates better model performance.
+
+### Code Architecture
+
+#### Key Classes and Functions
+
+1. **LibriSpeechProcessor**: Processes and loads LibriSpeech dataset
+   - Handles audio files, transcriptions, and dataset preparation
+   - Creates sample structures with audio path, text, and duration
+
+2. **InferenceModelClient**: Client for model inference
+   - Abstracts away model loading and inference details
+   - Supports both local models and Hugging Face hosted models
+
+3. **calculate_wer**: Implements Word Error Rate calculation
+   - Uses dynamic programming for Levenshtein distance
+   - Provides normalized error rates for model comparison
+
+#### Data Flow
+
+1. Dataset Processing:
+   ```
+   LibriSpeechProcessor → prepare_dataset() → samples
+   ```
+
+2. Model Inference:
+   ```
+   audio_file → InferenceModelClient → transcribe_audio() → transcript
+   ```
+
+3. Evaluation:
+   ```
+   reference + transcript → calculate_wer() → WER score
+   ```
+
+### Customizing the Fine-Tuning Process
+
+For advanced settings and fine-tuning parameters:
+
+```bash
+python fine_tune.py \
+  --dataset_path ./LibriSpeech/train-clean-100 \
   --model_name openai/whisper-small \
   --epochs 5 \
   --batch_size 16 \
-  --learning_rate 5e-5
+  --learning_rate 5e-5 \
+  --weight_decay 0.01 \
+  --warmup_steps 500 \
+  --max_samples 1000 \
+  --output_dir ./output \
+  --push_to_hub \
+  --hub_model_id your-username/whisper-small-finetuned
 ```
 
-#### Checking Job Status
+## Troubleshooting
 
-After starting a fine-tuning job, you can check its status:
+### Common Issues
 
-```bash
-python check_job_status.py --job_id <job_id> --model openai/whisper-small
-```
+1. **Missing Dataset Files**:
+   - Verify dataset structure with `verify_dataset.py`
+   - Ensure correct paths are provided to scripts
 
-To wait for the job to complete:
+2. **API Authentication Errors**:
+   - Check if HUGGINGFACE_TOKEN environment variable is set
+   - Verify token has write permissions
 
-```bash
-python check_job_status.py --job_id <job_id> --model openai/whisper-small --wait
-```
+3. **Memory Issues**:
+   - Reduce batch size or max_samples
+   - Use model with fewer parameters (e.g., whisper-tiny)
 
-## Simulating and Testing Your Model
+## License
 
-If you don't have access to the Hugging Face API or want to test the workflow locally, you can use our simulation capabilities:
+This project uses the LibriSpeech dataset, which is licensed under CC BY 4.0.
 
-### Running Local Fine-tuning Simulation
+## Acknowledgments
 
-```bash
-python simulate_local.py --max_samples 200 --epochs 3
-```
-
-This creates a simulated fine-tuned model saved in `output/models/`.
-
-### Testing Your Fine-tuned Model
-
-Once you have a fine-tuned model (either real or simulated), you can test it on the LibriSpeech test-clean dataset:
-
-```bash
-python inference.py --model ./output/models/whisper-small-finetuned.json --test_dataset /path/to/LibriSpeech_test/test-clean --max_samples 20
-```
-
-For real Hugging Face models:
-
-```bash
-python inference.py --model openai/whisper-small --test_dataset /path/to/LibriSpeech_test/test-clean --max_samples 20
-```
-
-### Transcribing Single Audio Files
-
-To transcribe a single audio file:
-
-```bash
-python huggingface_client.py --audio path/to/audio.flac --model ./output/models/whisper-small-finetuned.json --is_local
-```
-
-Or using a Hugging Face model:
-
-```bash
-python huggingface_client.py --audio path/to/audio.flac --model openai/whisper-small
-```
-
-## Dataset
-
-The project uses the LibriSpeech dataset, which contains readings from audiobooks. The dataset is organized into folders by speaker IDs. The training data is from `train-clean-100` and the evaluation uses `test-clean`.
-
-
+- OpenAI for the Whisper speech recognition model
+- Hugging Face for model hosting and fine-tuning API
+- LibriSpeech dataset creators and contributors
