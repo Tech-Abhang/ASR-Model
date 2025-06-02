@@ -1,4 +1,7 @@
-pip install sagemaker
-pip install --upgrade huggingface_hub
-pip install requests
-pip install dotenv
+transformers>=4.21.0
+torch>=1.9.0
+torchaudio
+datasets
+librosa
+tqdm
+accelerate
