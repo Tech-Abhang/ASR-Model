@@ -12,5 +12,5 @@
   "improvement_percent": 24.6904369567456,
   "test_dataset": "./LibriSpeech_test/test-clean",
   "samples_tested": 50,
-  "timestamp": "2025-06-02 15:26:06"
+  "timestamp": "2025-06-02 23:35:59"
 }

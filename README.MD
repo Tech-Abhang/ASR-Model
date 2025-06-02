@@ -178,6 +178,60 @@ python inference.py \
 
 #### Single File Transcription
 
+## Running the API Server
+
+### Start the Transcription Server
+
+The project includes a FastAPI server for real-time audio transcription via HTTP API.
+
+1. **Start the server:**
+   ```bash
+   python app.py
+   ```
+   
+   The server will start on `http://localhost:8000` and load your fine-tuned model.
+
+2. **Test with curl command:**
+   ```bash
+   curl -X POST "http://localhost:8000/transcribe" \
+        -H "accept: application/json" \
+        -H "Content-Type: multipart/form-data" \
+        -F "file=@your_audio_file.wav"
+   ```
+
+3. **Use the test script:**
+   ```bash
+   ./test_api.sh test1.wav
+   ```
+
+### API Endpoints
+
+- **POST `/transcribe`**: Upload an audio file (.wav format) and get transcription
+  - **Input**: Audio file via multipart/form-data
+  - **Output**: JSON response with transcription text
+  - **Example response**: `{"transcription":"YOUR TRANSCRIBED TEXT HERE"}`
+
+### Server Configuration
+
+The server automatically:
+- Loads your fine-tuned model from `./whisper-finetuned`
+- Falls back to base Whisper model if fine-tuned model fails
+- Handles temporary file management
+- Provides error handling and logging
+
+### Testing Audio Files
+
+You can test the API with any `.wav` audio file:
+```bash
+# Using curl directly
+curl -X POST "http://localhost:8000/transcribe" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@test1.wav"
+
+# Using the provided test script
+./test_api.sh test1.wav
+./test_api.sh your_custom_audio.wav
+```
 
 ## Advanced Usage
 

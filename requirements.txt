@@ -6,3 +6,5 @@ librosa
 tqdm
 accelerate
 soundfile
+fastapi
+uvicorn[standard]
