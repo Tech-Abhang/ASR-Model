@@ -1,16 +1,16 @@
 {
   "base_model": {
     "name": "whisper-small",
-    "path": "/Users/abhangsudhirpawar/Documents/Akai/whisper-small",
+    "path": "./whisper-small",
     "wer": 0.22248939962023367
   },
   "finetuned_model": {
     "name": "whisper-finetuned",
-    "path": "/Users/abhangsudhirpawar/Documents/Akai/whisper-finetuned",
+    "path": "./whisper-finetuned",
     "wer": 0.1675557946715581
   },
   "improvement_percent": 24.6904369567456,
-  "test_dataset": "/Users/abhangsudhirpawar/Documents/Akai/LibriSpeech_test/test-clean",
+  "test_dataset": "./LibriSpeech_test/test-clean",
   "samples_tested": 50,
-  "timestamp": "2025-06-02 02:27:28"
+  "timestamp": "2025-06-02 15:26:06"
 }

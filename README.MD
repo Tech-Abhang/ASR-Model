@@ -127,11 +127,28 @@ python fine_tune.py \
 python fine_tune.py \
   --dataset_path ./LibriSpeech/train-clean-100 \
   --max_samples 500 \
-  --model_name openai/whisper-small \
+  --model_path ./whisper-small \
   --epochs 1 \
   --batch_size 16 \
   --learning_rate 5e-5 \
-  --output_dir ./output
+  --output_dir ./whisper-finetuned
+```
+or
+
+(shown better results)
+```bash
+python fine_tune.py \
+  --output_dir ./whisper-finetuned \
+  --max_samples 200 \
+  --epochs 1 \
+  --batch_size 4 \
+  --learning_rate 2e-5 \
+  --min_duration 1.0 \
+  --max_duration 15.0
+```
+
+```bash
+cp ./whisper-small/preprocessor_config.json ./whisper-finetuned-new/
 ```
 
 ### Model Evaluation
