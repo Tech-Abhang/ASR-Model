@@ -1,5 +1,5 @@
 """
-Main script for fine-tuning a speech recognition model using the LibriSpeech dataset.
+Main fine-tuning script for Whisper models with optimized parameters.
 """
 import os
 import argparse
@@ -12,24 +12,24 @@ from verify_dataset import verify_dataset
 from transformers import WhisperProcessor
 
 def main():
-    parser = argparse.ArgumentParser(description="Fine-tune a speech recognition model using LibriSpeech")
+    parser = argparse.ArgumentParser(description="Fine-tune a Whisper speech recognition model using LibriSpeech")
     parser.add_argument('--dataset_path', type=str, default='/Users/abhangsudhirpawar/Documents/Akai/LibriSpeech/train-clean-100',
                         help='Path to the LibriSpeech train-clean-100 dataset')
     parser.add_argument('--max_samples', type=int, default=100,
                         help='Maximum number of samples to use for fine-tuning')
     parser.add_argument('--model_path', type=str, default='./whisper-small',
                         help='Path to the local pre-trained model directory')
-    parser.add_argument('--epochs', type=int, default=3,
+    parser.add_argument('--epochs', type=int, default=1,
                         help='Number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=4,
+    parser.add_argument('--batch_size', type=int, default=8,
                         help='Training batch size')
-    parser.add_argument('--learning_rate', type=float, default=1e-5,
+    parser.add_argument('--learning_rate', type=float, default=2e-5,
                         help='Learning rate for fine-tuning')
     parser.add_argument('--validation_split', type=float, default=0.1,
                         help='Fraction of data to use for validation')
-    parser.add_argument('--min_duration', type=float, default=1.0,
+    parser.add_argument('--min_duration', type=float, default=2.0,
                         help='Minimum audio duration in seconds')
-    parser.add_argument('--max_duration', type=float, default=15.0,
+    parser.add_argument('--max_duration', type=float, default=10.0,
                         help='Maximum audio duration in seconds')
     parser.add_argument('--output_dir', type=str, default='./whisper-finetuned',
                         help='Directory to save the fine-tuned model')
@@ -48,7 +48,7 @@ def main():
         print("Use the verify_dataset.py script for more detailed diagnostics:")
         print(f"python verify_dataset.py --dataset_path \"{args.dataset_path}\"")
         sys.exit(1)
-        
+    
     # Process LibriSpeech dataset
     print(f"Processing LibriSpeech dataset from: {args.dataset_path}")
     processor = LibriSpeechProcessor(args.dataset_path)
@@ -88,22 +88,43 @@ def main():
     client = FineTuningClient(model_path=args.model_path)
     
     if not args.dry_run:
-        print("Starting local fine-tuning...")
+        print("Starting fine-tuning...")
+        print("Optimizations enabled:")
+        print("- MPS (Apple Silicon GPU) acceleration")
+        print("- Gradient checkpointing for memory efficiency") 
+        print("- Optimized batch processing")
+        print("- Parallel data loading")
+        print("- Optimized learning rate schedule")
+        
         finetuned_model_path = client.fine_tune(
             preprocessed_samples=preprocessed_training,
             validation_samples=preprocessed_validation,
             output_dir=args.output_dir,
             per_device_train_batch_size=args.batch_size,
+            gradient_accumulation_steps=1,
             learning_rate=args.learning_rate,
-            num_train_epochs=args.epochs
+            num_train_epochs=args.epochs,
+            warmup_steps=50
         )
         
         print(f"Fine-tuning completed successfully!")
         print(f"Fine-tuned model saved to: {finetuned_model_path}")
+        
+        # Quick test of the model
+        print("\nTesting the fine-tuned model...")
+        try:
+            from transformers import WhisperForConditionalGeneration
+            test_model = WhisperForConditionalGeneration.from_pretrained(finetuned_model_path)
+            print(f"✓ Model loaded successfully from {finetuned_model_path}")
+            print(f"✓ Model parameters: {test_model.num_parameters():,}")
+        except Exception as e:
+            print(f"Warning: Could not test model: {e}")
+            
     else:
         print("Dry run completed. No fine-tuning was started.")
         print(f"Dataset processed: {len(training_data)} training samples, {len(validation_data)} validation samples.")
         print("To start the actual fine-tuning, run without the --dry_run flag.")
+        print(f"Estimated training time with optimizations: ~{len(training_data) // args.batch_size * args.epochs * 30} seconds")
 
 if __name__ == "__main__":
     main()
