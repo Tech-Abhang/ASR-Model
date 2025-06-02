@@ -1,7 +1,6 @@
 # Exclude LibriSpeech dataset folder
 LibriSpeech/
 LibriSpeech_test/
-output/
 archive/
 whisper-small/
 whisper-finetuned/
