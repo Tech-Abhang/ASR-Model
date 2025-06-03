@@ -8,3 +8,4 @@ accelerate
 soundfile
 fastapi
 uvicorn[standard]
+matplotlib

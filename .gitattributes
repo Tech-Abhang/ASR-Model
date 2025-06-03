@@ -2,3 +2,6 @@ whisper-finetuned/model.safetensors filter=lfs diff=lfs merge=lfs -text
 whisper-finetuned/checkpoint-50/model.safetensors filter=lfs diff=lfs merge=lfs -text
 whisper-small/model.safetensors filter=lfs diff=lfs merge=lfs -text
 *.safetensors filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text

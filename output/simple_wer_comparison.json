@@ -7,10 +7,10 @@
   "finetuned_model": {
     "name": "whisper-finetuned",
     "path": "./whisper-finetuned",
-    "wer": 0.1675557946715581
+    "wer": 0.16525930902952166
   },
-  "improvement_percent": 24.6904369567456,
+  "improvement_percent": 25.72261451035323,
   "test_dataset": "./LibriSpeech_test/test-clean",
   "samples_tested": 50,
-  "timestamp": "2025-06-02 23:35:59"
+  "timestamp": "2025-06-03 14:05:14"
 }
