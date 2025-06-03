@@ -1,9 +1,6 @@
 # Exclude LibriSpeech dataset folder
 LibriSpeech/
 LibriSpeech_test/
-archive/
-whisper-small/
-whisper-finetuned/
 
 # Exclude environment variables file
 .env
