@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import tempfile
 import os
-
 from modelLoader import load_asr_model
 
 app = FastAPI(title="ASR Transcription Service")
