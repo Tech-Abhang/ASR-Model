@@ -12,6 +12,60 @@ This project provides end-to-end utilities for:
 
 It's optimized for Mac M-series chips without requiring CUDA acceleration.
 
+## Dataset Information
+
+### LibriSpeech Dataset Overview
+
+[LibriSpeech](http://www.openslr.org/12/) is a large corpus of read English speech designed for speech recognition research. It's derived from audiobooks in the LibriVox project and contains approximately 1000 hours of speech data.
+
+### Dataset Subsets Used
+
+This project uses two specific subsets of LibriSpeech:
+
+#### Training Data: `train-clean-100`
+- **Size**: ~100 hours of clean speech
+- **Speakers**: 251 speakers
+- **Audio Files**: ~28,539 utterances
+- **File Format**: 16kHz FLAC audio files
+- **Quality**: High-quality recordings with minimal background noise
+- **Purpose**: Used for fine-tuning the Whisper model
+
+#### Test Data: `test-clean`
+- **Size**: ~5.4 hours of clean speech
+- **Speakers**: 40 speakers
+- **Audio Files**: ~2,620 utterances
+- **File Format**: 16kHz FLAC audio files
+- **Quality**: High-quality recordings for evaluation
+- **Purpose**: Used for model evaluation and WER calculation
+
+### Dataset Structure
+
+```
+LibriSpeech/train-clean-100/
+├── [speaker_id]/
+│   ├── [chapter_id]/
+│   │   ├── [speaker_id]-[chapter_id]-[utterance_id].flac
+│   │   ├── [speaker_id]-[chapter_id]-[utterance_id].txt
+│   │   └── ...
+│   └── ...
+└── ...
+
+LibriSpeech_test/test-clean/
+├── [speaker_id]/
+│   ├── [chapter_id]/
+│   │   ├── [speaker_id]-[chapter_id]-[utterance_id].flac
+│   │   ├── [speaker_id]-[chapter_id]-[utterance_id].txt
+│   │   └── ...
+│   └── ...
+└── ...
+```
+
+### Dataset Statistics
+
+These statistics are visualized in `output/dataset_stats.png` after running dataset analysis scripts.
+
+```
+
 ## Project Structure
 
 ### Core Components
@@ -66,25 +120,57 @@ export HUGGINGFACE_TOKEN=your_token_here
 
 ### 3. Prepare Dataset
 
-1. Download LibriSpeech datasets:
+#### Download LibriSpeech Datasets
+
+1. **Training Dataset (train-clean-100)**:
+   ```bash
+   # Create directory and download (~6.3 GB)
+   mkdir -p LibriSpeech
+   wget https://www.openslr.org/resources/12/train-clean-100.tar.gz
+   tar -xzf train-clean-100.tar.gz -C LibriSpeech
+   ```
+
+2. **Test Dataset (test-clean)**:
+   ```bash
+   # Create directory and download (~346 MB)
+   mkdir -p LibriSpeech_test
+   wget https://www.openslr.org/resources/12/test-clean.tar.gz
+   tar -xzf test-clean.tar.gz -C LibriSpeech_test
+   ```
+
+#### Verify Dataset Structure
+
+After downloading, verify the datasets are correctly structured:
 
 ```bash
-# Download train-clean-100 subset
-mkdir -p LibriSpeech
-wget https://www.openslr.org/resources/12/train-clean-100.tar.gz
-tar -xzf train-clean-100.tar.gz -C LibriSpeech
+# Verify training dataset
+python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100
 
-# Download test-clean subset
-mkdir -p LibriSpeech_test
-wget https://www.openslr.org/resources/12/test-clean.tar.gz
-tar -xzf test-clean.tar.gz -C LibriSpeech_test
+# Verify test dataset
+python verify_dataset.py --dataset_path ./LibriSpeech_test/test-clean
 ```
 
-2. Verify the dataset structure:
+**Expected Output:**
+```
+Dataset verification completed successfully!
+✓ Found [X] speakers
+✓ Found [X] audio files  
+✓ Found [X] transcript files
+✓ All audio files have corresponding transcripts
+✓ Sample rate consistency verified (16000 Hz)
+```
+
+#### Dataset Analysis (Optional)
+
+Generate dataset statistics and visualizations:
 
 ```bash
-python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100
-python verify_dataset.py --dataset_path ./LibriSpeech_test/test-clean
+python dataset_processor.py --dataset_path ./LibriSpeech/train-clean-100 --analyze
+```
+
+This creates:
+- `output/dataset_manifest.json`: Sample dataset entries
+- `output/dataset_stats.png`: Duration and speaker distribution charts
 ```
 
 ### 4. Download Base Model
@@ -148,7 +234,7 @@ python fine_tune.py \
 ```
 
 ```bash
-cp ./whisper-small/preprocessor_config.json ./whisper-finetuned-new/
+cp ./whisper-small/preprocessor_config.json ./whisper-finetuned/
 ```
 
 ### Model Evaluation
@@ -340,17 +426,32 @@ The `./output/` directory contains evaluation results and visualizations generat
 
 ### Common Issues
 
-1. **Missing Dataset Files**:
-   - Verify dataset structure with `verify_dataset.py`
-   - Ensure correct paths are provided to scripts
+1. **Dataset Issues**:
+   - **Missing Dataset Files**: Verify dataset structure with `python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100`
+   - **Incomplete Download**: Re-download datasets if verification fails
+   - **Wrong Directory Structure**: Ensure datasets are extracted to correct paths:
+     - Training: `./LibriSpeech/train-clean-100/`
+     - Test: `./LibriSpeech_test/test-clean/`
+   - **Audio Format Issues**: LibriSpeech uses FLAC format; ensure your system supports FLAC decoding
+   - **Disk Space**: Training dataset requires ~6.3 GB, test dataset ~346 MB
 
-2. **API Authentication Errors**:
+2. **Dataset Processing Issues**:
+   - **Slow Processing**: Large dataset processing can take time; use `--max_samples` to limit for testing
+   - **Memory Issues During Processing**: Reduce batch size or process in smaller chunks
+   - **Audio Loading Errors**: Install required audio libraries: `pip install librosa soundfile`
+
+3. **API Authentication Errors**:
    - Check if HUGGINGFACE_TOKEN environment variable is set
    - Verify token has write permissions
 
-3. **Memory Issues**:
+4. **Memory Issues**:
    - Reduce batch size or max_samples
    - Use model with fewer parameters (e.g., whisper-tiny)
+
+5. **Performance Issues**:
+   - **Slow Training**: Consider using smaller dataset subsets for initial testing
+   - **High WER**: Ensure dataset quality and sufficient training samples
+   - **Model Loading Issues**: Verify model files are not corrupted and paths are correct
 
 ## License
 
