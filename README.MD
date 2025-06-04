@@ -60,11 +60,11 @@ LibriSpeech_test/test-clean/
 └── ...
 ```
 
-### Dataset Statistics
+## Dataset Statistics
 
 These statistics are visualized in `output/dataset_stats.png` after running dataset analysis scripts.
 
-```
+---
 
 ## Project Structure
 
