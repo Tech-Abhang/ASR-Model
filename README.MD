@@ -160,20 +160,7 @@ Dataset verification completed successfully!
 ✓ Sample rate consistency verified (16000 Hz)
 ```
 
-#### Dataset Analysis (Optional)
-
-Generate dataset statistics and visualizations:
-
-```bash
-python dataset_processor.py --dataset_path ./LibriSpeech/train-clean-100 --analyze
-```
-
-This creates:
-- `output/dataset_manifest.json`: Sample dataset entries
-- `output/dataset_stats.png`: Duration and speaker distribution charts
-```
-
-### 4. Download Base Model
+**4. Download Base Model**
 
 Download the pre-trained base model:
 
@@ -187,12 +174,6 @@ python downloadModel.py --model_name "openai/whisper-small" --output_dir "./whis
 
 ```bash
 python verify_dataset.py --dataset_path ./LibriSpeech/train-clean-100
-```
-
-#### Analyze Dataset Statistics
-
-```bash
-python visualize_dataset.py --dataset_path ./LibriSpeech/train-clean-100 --output_dir ./output
 ```
 
 ### Fine-Tuning
